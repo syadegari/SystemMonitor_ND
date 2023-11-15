@@ -13,3 +13,12 @@ set_property(TARGET monitor PROPERTY CXX_STANDARD 17)
 target_link_libraries(monitor ${CURSES_LIBRARIES})
 # TODO: Run -Werror in CI.
 target_compile_options(monitor PRIVATE -Wall -Wextra)
+
+
+add_subdirectory(externals/googletest)
+# enable_testing()
+# include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+file(GLOB TEST_SOURCES "tests/*.cpp")
+# add_executable(runUnitTests ${TEST_SOURCES})
+add_executable(unittest tests/format_test.cpp src/format.cpp)
+target_link_libraries(unittest gtest_main)
