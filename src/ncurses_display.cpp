@@ -3,6 +3,8 @@
 #include <curses.h>
 
 #include <chrono>
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -12,6 +14,13 @@
 
 using std::string;
 using std::to_string;
+
+void write_stats(std::ofstream& file, Process& process) {
+  file << "PID: " << process.Pid() << ", User: " << process.User()
+       << ", CPU Utilization: " << process.CpuUtilization() * 100
+       << ", RAM: " << process.Ram()
+       << ", Uptime: " << Format::ElapsedTime(process.UpTime()) << "\n";
+}
 
 // 50 bars uniformly displayed from 0 - 100 %
 // 2% is one bar(|)
@@ -84,6 +93,23 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
+
+#ifndef NDEBUG
+  static bool is_written = false;
+  if (!is_written) {
+    std::ofstream stats_file("process_stats.txt",
+                             std::ios::out | std::ios::app);
+    if (!stats_file) {
+      std::cerr << "Failed to open file for writing.\n";
+    }
+    for (int i = 0; i < n; ++i) {
+      write_stats(stats_file, processes[i]);
+    }
+    stats_file.close();
+    is_written = true;
+  }
+#endif
+
   for (int i = 0; i < n; ++i) {
     // You need to take care of the fact that the cpu utilization has already
     // been multiplied by 100.
