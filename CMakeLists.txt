@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.15.0)
 project(monitor)
 
 find_package(Curses REQUIRED)
@@ -16,9 +16,21 @@ target_compile_options(monitor PRIVATE -Wall -Wextra)
 
 
 add_subdirectory(externals/googletest)
+file(GLOB SOURCE_EXCEPT_MAIN "src/*.cpp")
+list(REMOVE_ITEM SOURCE_EXCEPT_MAIN  "src/main.cpp")
 # enable_testing()
-# include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 file(GLOB TEST_SOURCES "tests/*.cpp")
+
+add_executable(unittest 
+
+tests/format_test.cpp
+tests/read_file_test.cpp 
+tests/data_holder_test.cpp
+
+ src/utils.cpp
+ src/format.cpp)
 # add_executable(runUnitTests ${TEST_SOURCES})
-add_executable(unittest tests/format_test.cpp src/format.cpp)
+# add_executable(unittest ${TEST_SOURCES} ${SOURCE_EXCEPT_MAIN})
+
 target_link_libraries(unittest gtest_main)
